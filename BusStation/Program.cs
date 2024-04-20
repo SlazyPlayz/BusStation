@@ -205,9 +205,9 @@ static void AddData()
             ];
 
             context.Stations.AddRange(stations);
-
-            context.SaveChanges();
         }
+
+        context.SaveChanges();
     }
 }
 static void PrintData()
