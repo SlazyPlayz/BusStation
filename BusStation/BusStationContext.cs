@@ -25,6 +25,26 @@ namespace BusStation
                     v => v.ToString(),
                     v => (BusType)Enum.Parse(typeof(BusType), v));
 
+            modelBuilder.Entity<Bus>()
+                .HasOne(b => b.EndingLocation)
+                .WithMany(s => s.Arrivals)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Bus>()
+                .HasOne(b => b.StartingLocation)
+                .WithMany(s => s.Departures)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Station>()
+                .HasMany(s => s.Arrivals)
+                .WithOne(b => b.EndingLocation)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Station>()
+                .HasMany(s => s.Departures)
+                .WithOne(b => b.StartingLocation)
+                .OnDelete(DeleteBehavior.Restrict);
+
             base.OnModelCreating(modelBuilder);
         }
     }

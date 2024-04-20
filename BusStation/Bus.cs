@@ -9,12 +9,19 @@ namespace BusStation
     public class Bus
     {
         public int ID { get; set; }
-        public string StartingLocation { get; set; } = string.Empty;
-        public string EndingLocation { get; set;} = string.Empty;
+        public int StartingLocationID { get; set; }
+        public int EndingLocationID { get; set; }
+        public Station StartingLocation { get; set; }
+        public Station EndingLocation { get; set;}
         public BusType Type { get; set; }
         public string DriverName { get; set; } = string.Empty;
+        public TimeOnly Departure { get; set; }
+        public TimeOnly Arrival { get; set; }
 
-        public string GetData() => String.Format($"{StartingLocation} - {EndingLocation} ({Type}) -> {DriverName}");
+        public string GetData()
+        {
+            return String.Format($"{StartingLocation.Location} - {EndingLocation.Location} ({Type}) -> {DriverName}");
+        }
     }
 
     public enum BusType

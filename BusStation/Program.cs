@@ -1,227 +1,148 @@
 ﻿using BusStation;
 using Microsoft.EntityFrameworkCore;
 
-AddData();
-PrintData();
+await AddData();
+await PrintData();
 
-static void AddData()
+async static Task AddData()
 {
-    using (var context = new BusStationContext())
+    using var context = new BusStationContext();
+    context.Database.EnsureCreated();
+
+    if (!context.Stations.Any())
     {
-        context.Database.EnsureCreated();
-
-        List<Bus> buses = new List<Bus>();
-
-        if (context.Buses.Any())
-        {
-            buses =
-            [
-                new Bus
+        List<Station> stations =
+        [
+            new()
                 {
-                    StartingLocation = "Sofia",
-                    EndingLocation = "Plovdiv",
+                    Location = "Plovdiv",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Sofia",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Sunny Beach",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Ravda",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Thessaloniki",
+                    Country = "Greece"
+                },
+                new()
+                {
+                    Location = "Svilengrad",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Varna",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Ruse",
+                    Country = "Bulgaria"
+                },
+                new()
+                {
+                    Location = "Pleven",
+                    Country = "Bulgaria"
+                }
+        ];
+
+        context.Stations.AddRange(stations);
+        await context.SaveChangesAsync();
+    }
+
+    if (!context.Buses.Any())
+    {
+        var stations = await context.Stations.ToArrayAsync();
+
+        List<Bus> buses =
+        [
+            new()
+                {
+                    //09:00 -> 11:30
+                    StartingLocation = stations.First(x => x.Location.Equals("Sofia")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Plovdiv")),
+                    Departure = new TimeOnly(09, 00),
+                    Arrival = new TimeOnly(11, 30),
                     Type = BusType.Minibus,
                     DriverName = "Pesho"
                 },
-                new Bus
+                new()
                 {
-                    StartingLocation = "Sunny Beach",
-                    EndingLocation = "Ravda",
+                    //11:00 -> 11:30
+                    StartingLocation = stations.First(x => x.Location.Equals("Sunny Beach")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Ravda")),
+                    Departure = new TimeOnly(11, 00),
+                    Arrival = new TimeOnly(11, 30),
                     Type = BusType.DoubleDecker,
                     DriverName = "Ivan"
                 },
-                new Bus
+                new()
                 {
-                    StartingLocation = "Plovdiv",
-                    EndingLocation = "Thessaloniki",
+                    // 12:00 -> 16:30
+                    StartingLocation = stations.First(x => x.Location.Equals("Plovdiv")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Thessaloniki")),
+                    Departure = new TimeOnly(12, 00),
+                    Arrival = new TimeOnly(16, 30),
                     Type = BusType.Bus,
                     DriverName = "Georgi"
                 },
-                new Bus
+                new()
                 {
-                    StartingLocation = "Svilengrad",
-                    EndingLocation = "Varna",
+                    //08:30 -> 21:40
+                    StartingLocation = stations.First(x => x.Location.Equals("Svilengrad")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Varna")),
+                    Departure = new TimeOnly(08, 30),
+                    Arrival = new TimeOnly(21, 40),
                     Type = BusType.Bus,
                     DriverName = "Dimitar"
                 },
-                new Bus
+                new()
                 {
-                    StartingLocation = "Plovdiv",
-                    EndingLocation = "Ruse",
+                    //09:30 -> 19:30
+                    StartingLocation = stations.First(x => x.Location.Equals("Plovdiv")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Ruse")),
+                    Departure = new TimeOnly(09, 30),
+                    Arrival = new TimeOnly(19, 30),
                     Type = BusType.Bus,
                     DriverName = "Alex"
                 },
-                new Bus
+                new()
                 {
-                    StartingLocation = "Pleven",
-                    EndingLocation = "Plovdiv",
+                    //10:00 -> 16:50
+                    StartingLocation = stations.First(x => x.Location.Equals("Pleven")),
+                    EndingLocation = stations.First(x => x.Location.Equals("Plovdiv")),
+                    Departure = new TimeOnly(10, 00),
+                    Arrival = new TimeOnly(16, 50),
                     Type = BusType.Bus,
                     DriverName = "Simeon"
                 }
-            ];
-            context.Buses.AddRange(buses);
-        }
-        else buses = [.. context.Buses];
-
-        if (context.Stations.Any())
-        {
-            List<Station> stations =
-            [
-                new()
-                {
-                    PlaceName = "Plovdiv",
-                    Country = "Bulgaria",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Plovdiv")),
-                            Time = new TimeOnly(11, 30)
-                        },
-                        new()
-                        {
-                            Bus = buses.Last(x => x.EndingLocation.Equals("Plovdiv")),
-                            Time = new TimeOnly(16, 50)
-                        }
-                    ],
-                    Departures =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.StartingLocation.Equals("Plovdiv")),
-                            Time = new TimeOnly(12, 00)
-                        },
-                        new()
-                        {
-                            Bus = buses.Last(x => x.StartingLocation.Equals("Plovdiv")),
-                            Time = new TimeOnly(09, 30)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Sofia",
-                    Country = "Bulgaria",
-                    Departures =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.StartingLocation.Equals("Sofia")),
-                            Time = new TimeOnly(09, 00)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Sunny Beach",
-                    Country = "Bulgaria",
-                    Departures =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.StartingLocation.Equals("Sofia")),
-                            Time = new TimeOnly(11, 00)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Ravda",
-                    Country = "Bulgaria",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Ravda")),
-                            Time = new TimeOnly(11, 30)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Thessaloniki",
-                    Country = "Greece",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Thessaloniki")),
-                            Time = new TimeOnly(16, 30)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Svilengrad",
-                    Country = "Bulgaria",
-                    Departures =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.StartingLocation.Equals("Svilengrad")),
-                            Time = new TimeOnly(08, 30)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Varna",
-                    Country = "Bulgaria",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Varna")),
-                            Time = new TimeOnly(21, 40)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Ruse",
-                    Country = "Bulgaria",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Ruse")),
-                            Time = new TimeOnly(21, 40)
-                        }
-                    ]
-                },
-                new()
-                {
-                    PlaceName = "Pleven",
-                    Country = "Bulgaria",
-                    Arrivals =
-                    [
-                        new()
-                        {
-                            Bus = buses.First(x => x.EndingLocation.Equals("Pleven")),
-                            Time = new TimeOnly(10, 00)
-                        }
-                    ]
-                }
-            ];
-
-            context.Stations.AddRange(stations);
-        }
-
-        context.SaveChanges();
+        ];
+        context.Buses.AddRange(buses);
+        await context.SaveChangesAsync();
     }
 }
-static void PrintData()
+async static Task PrintData()
 {
-    using (var context = new BusStationContext())
-    {
-        context.Database.EnsureCreated();
+    using var context = new BusStationContext();
+    context.Database.EnsureCreated();
 
-        Console.WriteLine("Buses: ");
-        context.Buses.ForEachAsync(x => Console.WriteLine(x.GetData()));
+    //Janky workaround to make sure that the buses get loaded before the stations
+    await context.Buses.Include(b => b.StartingLocation).Include(b => b.EndingLocation).ForEachAsync(x => x.GetData());
 
-        Console.WriteLine();
-
-        Console.WriteLine("Bus stations: ");
-        context.Stations.ForEachAsync(x => x.PrintData());
-    }
+    Console.WriteLine("Bus stations: ");
+    await context.Stations.Include(s => s.Arrivals).Include(s => s.Departures).ForEachAsync(x => x.PrintData());
 }
